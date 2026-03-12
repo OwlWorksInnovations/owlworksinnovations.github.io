@@ -6,11 +6,37 @@ import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 import RetroPanel from '../components/RetroPanel.astro';
+import PasscodeOverlay from '../components/PasscodeOverlay.astro';
+import LockedHero from '../assets/locked-hero.png';
+import crypto from 'node:crypto';
 
 type Props = CollectionEntry<'blog'>['data'] & { id: string };
 
-const { title, description, pubDate, updatedDate, heroImage, id } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, id, inConstruction = false } = Astro.props;
+
+// Automated Encryption Logic
+let encryptedData = null, iv = null, salt = null, tag = null;
+const PASSCODE = "6424";
+
+if (inConstruction) {
+	const html = await Astro.slots.render('default');
+	const saltBuf = crypto.randomBytes(16);
+    const ivBuf = crypto.randomBytes(12);
+    const key = crypto.pbkdf2Sync(PASSCODE, saltBuf, 100000, 32, 'sha256');
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, ivBuf);
+    
+    let encrypted = cipher.update(html, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    
+    encryptedData = encrypted;
+    iv = ivBuf.toString('hex');
+    salt = saltBuf.toString('hex');
+    tag = cipher.getAuthTag().toString('hex');
+}
+
+const isEncrypted = inConstruction; // Now driven by inConstruction
 const panelTitle = `FILE_ENTRY_${id?.toUpperCase() || 'DATA'}`;
+const realHeroSrc = heroImage ? heroImage.src : null;
 ---
 
 <html lang="en">
@@ -21,6 +47,7 @@ const panelTitle = `FILE_ENTRY_${id?.toUpperCase() || 'DATA'}`;
 				color: var(--ps1-white);
 				font-family: 'VT323', monospace;
 				font-size: 1.6rem;
+				position: relative;
 			}
 			.title-section {
 				margin-bottom: 2rem;
@@ -42,6 +69,69 @@ const panelTitle = `FILE_ENTRY_${id?.toUpperCase() || 'DATA'}`;
 				margin-bottom: 2rem;
 				border: 4px solid var(--ps1-black);
 			}
+
+			/* Construction Overlay */
+			.construction-area {
+				position: relative;
+				min-height: 400px;
+			}
+
+			.hazard-overlay {
+				position: absolute;
+				top: -10px;
+				left: -20px;
+				right: -20px;
+				bottom: -10px;
+				background: rgba(0, 0, 0, 0.85);
+				z-index: 100;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				border: 10px solid var(--ps1-yellow);
+				background-image: 
+					linear-gradient(45deg, var(--ps1-yellow) 25%, transparent 25%, transparent 50%, var(--ps1-yellow) 50%, var(--ps1-yellow) 75%, transparent 75%, transparent);
+				background-size: 100px 100px;
+				clip-path: polygon(0 0, 100% 0, 100% 10%, 95% 10%, 95% 90%, 100% 90%, 100% 100%, 0 100%, 0 90%, 5% 90%, 5% 10%, 0 10%);
+			}
+
+			.hazard-box {
+				background: var(--ps1-black);
+				border: 8px double var(--ps1-yellow);
+				padding: 2rem;
+				text-align: center;
+				box-shadow: 0 0 20px rgba(243, 195, 0, 0.5);
+				max-width: 80%;
+			}
+
+			.hazard-box h2 {
+				font-family: 'Press Start 2P', cursive;
+				color: var(--ps1-yellow);
+				font-size: 1.2rem;
+				margin-bottom: 1.5rem;
+				text-shadow: 4px 4px 0px var(--ps1-red);
+			}
+
+			.hazard-box p {
+				color: var(--ps1-white);
+				font-size: 1.2rem;
+				margin-bottom: 0;
+			}
+
+			.barrier {
+				width: 100%;
+				height: 20px;
+				background: repeating-linear-gradient(
+					-45deg,
+					var(--ps1-yellow),
+					var(--ps1-yellow) 20px,
+					var(--ps1-black) 20px,
+					var(--ps1-black) 40px
+				);
+				margin: 1rem 0;
+				border: 2px solid var(--ps1-grey);
+			}
+
 			:global(.prose h2) { color: var(--ps1-teal); font-size: 1.4rem; margin-top: 2rem; }
 			:global(.prose p) { margin-bottom: 1.5rem; }
 			:global(.prose code) { background: var(--ps1-black); color: var(--ps1-teal); padding: 0.2rem 0.5rem; }
@@ -66,11 +156,38 @@ const panelTitle = `FILE_ENTRY_${id?.toUpperCase() || 'DATA'}`;
 						</div>
 						<h1>{title.toUpperCase()}</h1>
 					</div>
-					{heroImage && (
-						<Image width={1020} height={510} src={heroImage} alt="" class="hero-image" />
+					{isEncrypted ? (
+						<Image id="blog-hero" width={1020} height={510} src={LockedHero} alt="Encrypted Content" class="hero-image" />
+					) : heroImage && (
+						<Image id="blog-hero" width={1020} height={510} src={heroImage} alt="" class="hero-image" />
 					)}
-					<div class="prose">
-						<slot />
+					
+					<div class="construction-area">
+						{isEncrypted ? (
+							<PasscodeOverlay encryptedData={encryptedData} iv={iv} salt={salt} tag={tag} realHeroSrc={realHeroSrc} />
+						) : inConstruction && (
+							<div class="hazard-overlay">
+								<div class="hazard-box">
+									<div class="barrier"></div>
+									<h2>ACCESS_RESTRICTED</h2>
+									<p>SYSTEM_UNDER_MAINTENANCE</p>
+									<p style="color: var(--ps1-teal); margin-top: 1rem;">STATUS: BUILDING_VOXEL_DATA...</p>
+									<div class="barrier"></div>
+								</div>
+							</div>
+						)}
+						<div class="prose" style={(inConstruction || isEncrypted) ? "filter: blur(8px); pointer-events: none; user-select: none;" : ""}>
+							{isEncrypted ? (
+								<div class="dummy-text" aria-hidden="true">
+									<p>ACCESS_DENIED_ENCRYPTED_DATA_PACKET_0x4F1A...</p>
+									<p>LOREM_IPSUM_DOLOR_SIT_AMET_CONSECTETUR_ADIPISCING_ELIT...</p>
+									<p>SED_DO_EIUSMOD_TEMPOR_INCIDIDUNT_UT_LABORE_ET_DOLORE_MAGNA_ALIQUA...</p>
+									<p>UT_ENIM_AD_MINIM_VENIAM_QUIS_NOSTRUD_EXERCITATION_ULLAMCO_LABORIS...</p>
+								</div>
+							) : (
+								<slot />
+							)}
+						</div>
 					</div>
 				</RetroPanel>
 			</article>

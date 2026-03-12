@@ -1,0 +1,181 @@
+---
+interface Props {
+	encryptedData: string;
+	iv: string;
+	salt: string;
+	tag: string;
+	realHeroSrc?: string;
+}
+
+const { encryptedData, iv, salt, tag, realHeroSrc } = Astro.props;
+---
+
+<div id="passcode-overlay" class="hazard-overlay">
+	<div class="hazard-box">
+		<div class="barrier"></div>
+		<h2>INPUT_PASSCODE</h2>
+		<div class="keypad-display" id="keypad-display">****</div>
+		<div class="keypad-grid">
+			{[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, 'E'].map((key) => (
+				<button class="key-btn" data-key={key}>{key}</button>
+			))}
+		</div>
+		<div id="auth-status" class="auth-status">WAITING_FOR_INPUT...</div>
+		<div class="barrier"></div>
+	</div>
+</div>
+
+<div id="decrypted-content" style="display: none;">
+	<div class="prose" id="prose-content"></div>
+</div>
+
+<script is:inline define:vars={{ encryptedData, iv, salt, tag, realHeroSrc }}>
+	const display = document.getElementById('keypad-display');
+	const status = document.getElementById('auth-status');
+	const overlay = document.getElementById('passcode-overlay');
+	const contentDiv = document.getElementById('decrypted-content');
+	const proseDiv = document.getElementById('prose-content');
+	const heroImg = document.getElementById('blog-hero');
+	
+	let currentInput = "";
+	
+	function hexToBuf(hex) {
+		const cleanHex = hex.replace(/[^0-9a-fA-F]/g, '');
+		return new Uint8Array(cleanHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+	}
+
+	async function decrypt(password) {
+		try {
+			status.innerText = "DERIVING_KEY...";
+			status.style.color = "var(--ps1-teal)";
+			
+			const encoder = new TextEncoder();
+			const passBuffer = encoder.encode(password);
+			const saltBuf = hexToBuf(salt);
+			
+			const baseKey = await crypto.subtle.importKey(
+				'raw', passBuffer, 'PBKDF2', false, ['deriveKey']
+			);
+			
+			const key = await crypto.subtle.deriveKey(
+				{ name: 'PBKDF2', salt: saltBuf, iterations: 100000, hash: 'SHA-256' },
+				baseKey,
+				{ name: 'AES-GCM', length: 256 },
+				false,
+				['decrypt']
+			);
+			
+			const ivBuf = hexToBuf(iv);
+			const tagBuf = hexToBuf(tag);
+			const dataBuf = hexToBuf(encryptedData);
+			
+			const combinedBuf = new Uint8Array(dataBuf.length + tagBuf.length);
+			combinedBuf.set(dataBuf);
+			combinedBuf.set(tagBuf, dataBuf.length);
+			
+			status.innerText = "DECRYPTING_DATA...";
+			const decrypted = await crypto.subtle.decrypt(
+				{ name: 'AES-GCM', iv: ivBuf },
+				key,
+				combinedBuf
+			);
+			
+			const decoded = new TextDecoder().decode(decrypted);
+			proseDiv.innerHTML = decoded;
+			
+			status.innerText = "ACCESS_GRANTED";
+			status.style.color = "#00ff00";
+			
+			setTimeout(() => {
+				overlay.style.display = "none";
+				// Swap Hero Image
+				if (realHeroSrc && heroImg) {
+					heroImg.src = realHeroSrc;
+				}
+				// Hide original blurred content and show new one
+				const container = overlay.parentElement;
+				const blurredProse = container.querySelector('.prose:not(#prose-content)');
+				if (blurredProse) blurredProse.style.display = "none";
+				contentDiv.style.display = "block";
+			}, 800);
+			
+		} catch (e) {
+			console.error("Decryption failed:", e);
+			status.innerText = "DATA_CORRUPTED";
+			status.style.color = "var(--ps1-red)";
+			currentInput = "";
+			display.innerText = "****";
+		}
+	}
+
+	document.querySelectorAll('.key-btn').forEach(btn => {
+		btn.addEventListener('click', () => {
+			const key = btn.getAttribute('data-key');
+			if (key === 'C') {
+				currentInput = "";
+				display.innerText = "****";
+			} else if (key === 'E') {
+				decrypt(currentInput);
+			} else {
+				if (currentInput.length < 8) {
+					currentInput += key;
+					display.innerText = "*".repeat(currentInput.length);
+				}
+			}
+		});
+	});
+</script>
+
+<style>
+	.keypad-display {
+		background: var(--ps1-black);
+		border: 2px solid var(--ps1-grey);
+		padding: 1rem;
+		font-family: 'Press Start 2P', cursive;
+		color: var(--ps1-teal);
+		margin-bottom: 2rem;
+		text-align: center;
+		letter-spacing: 0.5rem;
+		font-size: 1.5rem;
+	}
+
+	.keypad-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1rem;
+		margin-bottom: 2rem;
+	}
+
+	.key-btn {
+		background: var(--ps1-grey);
+		border: 4px solid var(--ps1-black);
+		color: var(--ps1-black);
+		font-family: 'Press Start 2P', cursive;
+		padding: 1rem;
+		font-size: 1rem;
+		cursor: pointer;
+		box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+		transition: all 0.1s ease;
+	}
+
+	.key-btn:active {
+		transform: translate(2px, 2px);
+		box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+	}
+
+	.key-btn[data-key='E'] {
+		background: var(--ps1-teal);
+	}
+
+	.key-btn[data-key='C'] {
+		background: var(--ps1-red);
+		color: white;
+	}
+
+	.auth-status {
+		font-family: 'VT323', monospace;
+		font-size: 1.5rem;
+		margin-bottom: 1rem;
+		text-align: center;
+	}
+</style>

@@ -3,19 +3,15 @@ title: "Building a Voxel Engine from Scratch"
 description: "A deep dive into the development of a high-performance voxel engine using C++ and OpenGL."
 pubDate: 2024-03-12
 heroImage: "./voxel-engine.png"
+inConstruction: true
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+## Introduction
+Building a voxel engine is a complex but rewarding task. It requires a solid understanding of graphics programming and efficient spatial data structures.
 
-## Technical Overview
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+## Technical Details
+- **Greedy Meshing**: An optimization technique to reduce the number of vertices.
+- **Multithreading**: Essential for smooth world loading.
+- **Infinite Terrain**: Generated using Perlin noise.
 
-- **Language**: C++
-- **Graphics API**: OpenGL
-- **Key Features**: Greedy meshing, infinite terrain, multithreaded chunk loading.
-
-### Greedy Meshing
-More lorem ipsum regarding technical details of face culling and greedy meshing algorithms used to optimize the vertex count.
-
-### Future Plans
-Final thoughts on adding physics, water simulation, and more complex shaders.
+I will be adding more details here as I continue development!
