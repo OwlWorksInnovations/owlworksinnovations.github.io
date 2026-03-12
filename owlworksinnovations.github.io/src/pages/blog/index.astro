@@ -1,0 +1,98 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import Header from '../../components/Header.astro';
+import RetroPanel from '../../components/RetroPanel.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<style>
+			.blog-list {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+				gap: 2rem;
+			}
+			.blog-item {
+				background: var(--bg-secondary);
+				border: 4px solid var(--ps1-grey);
+				padding: 1rem;
+				text-decoration: none;
+				position: relative;
+				transition: all 0.1s ease;
+			}
+			.blog-item:hover {
+				background: var(--ps1-teal);
+				border-color: var(--ps1-white);
+				transform: scale(1.02);
+			}
+			.blog-item:hover h4 { color: var(--ps1-black); }
+			.blog-item:hover .date { color: var(--ps1-black); }
+
+			.slot-id {
+				position: absolute;
+				top: -10px;
+				left: 10px;
+				background: var(--ps1-red);
+				color: white;
+				padding: 2px 8px;
+				font-size: 0.7rem;
+				font-family: 'Press Start 2P', cursive;
+				border: 2px solid var(--ps1-black);
+			}
+			.title {
+				font-family: 'Press Start 2P', cursive;
+				font-size: 0.8rem;
+				color: var(--ps1-yellow);
+				margin: 1.5rem 0 1rem 0;
+				line-height: 1.4;
+			}
+			.date {
+				font-size: 0.9rem;
+				color: var(--ps1-grey);
+			}
+			.hero-image {
+				width: 100%;
+				height: 150px;
+				object-fit: cover;
+				border: 2px solid var(--ps1-black);
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section>
+				<RetroPanel title="DATA_LOGS" color="red">
+					<div class="blog-list">
+						{
+							posts.map((post, index) => (
+								<a href={`/blog/${post.id}/`} class="blog-item">
+									<div class="slot-id">SLOT_{String(index + 1).padStart(3, '0')}</div>
+									{post.data.heroImage && (
+										<Image width={720} height={360} src={post.data.heroImage} alt="" class="hero-image" />
+									)}
+									<h4 class="title">{post.data.title.toUpperCase()}</h4>
+									<p class="date">
+										[ <FormattedDate date={post.data.pubDate} /> ]
+									</p>
+								</a>
+							))
+						}
+					</div>
+				</RetroPanel>
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>

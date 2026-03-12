@@ -1,0 +1,196 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import RetroPanel from '../components/RetroPanel.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+const birthDate = new Date('2009-05-19');
+const today = new Date();
+let age = today.getFullYear() - birthDate.getFullYear();
+const m = today.getMonth() - birthDate.getMonth();
+if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+}
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<style>
+			.pixel-text { font-family: 'VT323', monospace; }
+			
+			.skill-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+				gap: 1.5rem;
+			}
+			.skill-item {
+				background: var(--ps1-grey);
+				color: var(--ps1-black);
+				padding: 1rem;
+				border: 4px solid var(--ps1-black);
+				box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+				font-weight: bold;
+				text-transform: uppercase;
+				font-size: 1rem;
+			}
+			
+			.project-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+				gap: 2rem;
+			}
+
+			.project-card-container {
+				background: var(--bg-secondary);
+				border: 4px solid var(--ps1-grey);
+				box-shadow: 6px 6px 0px rgba(0,0,0,0.5);
+				display: flex;
+				flex-direction: column;
+			}
+
+			.project-card {
+				padding: 1.5rem;
+				text-decoration: none;
+				color: inherit;
+				position: relative;
+				overflow: hidden;
+				flex-grow: 1;
+				display: block;
+			}
+
+			.project-card h3 {
+				margin-top: 0;
+				font-size: 1rem;
+				color: var(--ps1-yellow);
+			}
+
+			.tech-stack {
+				position: absolute;
+				bottom: -100%;
+				left: 0;
+				width: 100%;
+				background: var(--ps1-teal);
+				color: var(--ps1-black);
+				padding: 0.5rem;
+				text-align: center;
+				font-family: 'Press Start 2P', cursive;
+				font-size: 0.6rem;
+				transition: bottom 0.2s ease;
+			}
+
+			.project-card-container:hover .tech-stack {
+				bottom: 0;
+			}
+
+			.card-footer {
+				padding: 1rem 1.5rem;
+				border-top: 2px solid var(--ps1-grey);
+				background: var(--ps1-black);
+				display: flex;
+				justify-content: space-between;
+				gap: 1rem;
+				flex-wrap: wrap;
+			}
+
+			.stat-line {
+				display: flex;
+				justify-content: flex-start;
+				gap: 1.5rem;
+				margin-bottom: 0.5rem;
+				border-bottom: 1px dotted var(--ps1-grey);
+				font-size: 1.2rem;
+			}
+
+			@media (max-width: 720px) {
+				.stat-line { font-size: 1rem; }
+				h1 { font-size: 1.5rem; }
+				.skill-grid { grid-template-columns: 1fr 1fr; }
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section id="hero">
+				<RetroPanel title="PLAYER_STATS" color="blue">
+					<div class="hero-content">
+						<h1>JUAN.EXE</h1>
+						<div class="stat-line"><span style="min-width: 120px;">CLASS:</span> <span>DEVELOPER</span></div>
+						<div class="stat-line"><span style="min-width: 120px;">AGE:</span> <span>{age}</span></div>
+						<div class="stat-line"><span style="min-width: 120px;">ORIGIN:</span> <span>SOUTH_AFRICA</span></div>
+						<div class="stat-line"><span style="min-width: 120px;">FOCUS:</span> <span>GRAPHICS_BACKEND</span></div>
+						<div class="stat-line"><span style="min-width: 120px;">LEVEL:</span> <span>HIGH_SCHOOL</span></div>
+						<p style="margin-top: 2rem;">FOCUSING ON GRAPHICS PROGRAMMING AND BACKEND SYSTEMS.</p>
+					</div>
+				</RetroPanel>
+			</section>
+
+			<section id="about">
+				<RetroPanel title="SYSTEM_DATA" color="teal">
+					<h2>IDENTIFICATION: ABOUT</h2>
+					<p>
+						FULL-TIME HIGH SCHOOL STUDENT AT ACELLUS ACADEMY FOCUSED ON GRAPHICS PROGRAMMING AND BACKEND DEVELOPMENT. 
+						MOST PROJECTS INVOLVE WORKING WITH LOW-LEVEL GRAPHICS APIS LIKE OPENGL USING C++, BUILDING A STRONG 
+						UNDERSTANDING OF HOW RENDERING PIPELINES AND GPU SYSTEMS ACTUALLY WORK.
+					</p>
+					<p>
+						DEVELOPMENT WORK ALSO INCLUDES PYTHON FOR DATA MINING AND COMPUTER VISION MODELS, ALONG WITH DESIGNING 
+						AND BUILDING CRUD APIS FOR BACKEND SERVICES. PROJECTS ARE TYPICALLY BUILT FROM THE GROUND UP TO 
+						UNDERSTAND HOW EACH PART OF THE SYSTEM WORKS, FROM GRAPHICS RENDERING TO SERVER-SIDE DATA HANDLING.
+					</p>
+					<p>
+						SKILLS CONTINUE TO GROW THROUGH DAILY WORK ON GRAPHICS PROGRAMMING, BACKEND SYSTEMS, AND DATA-FOCUSED 
+						PYTHON PROJECTS, WITH AN EMPHASIS ON BUILDING REAL SYSTEMS AND IMPROVING TECHNICAL DEPTH OVER TIME.
+					</p>
+				</RetroPanel>
+			</section>
+
+			<section id="skills">
+				<RetroPanel title="ABILITY_LIST" color="yellow">
+					<h2>SKILLS_DATABASE</h2>
+					<div class="skill-grid">
+						<div class="skill-item">OPENGL / C++</div>
+						<div class="skill-item">CRUD APIS</div>
+						<div class="skill-item">PYTHON DATA</div>
+						<div class="skill-item">SYSTEM DESIGN</div>
+						<div class="skill-item">RENDERING GPU</div>
+					</div>
+				</RetroPanel>
+			</section>
+
+			<section id="projects">
+				<RetroPanel title="SAVE_SLOTS" color="red">
+					<h2>PROJECT_FILES</h2>
+					<div class="project-grid">
+						<div class="project-card-container">
+							<a href="https://github.com/OwlWorksInnovations/voxel-engine" target="_blank" class="project-card">
+								<h3>VOXEL_ENGINE</h3>
+								<p>A HIGH-PERFORMANCE VOXEL ENGINE BUILT WITH C++ AND OPENGL. FEATURES GREEDY MESHING AND INFINITE TERRAIN.</p>
+								<div class="tech-stack">OPENGL, GLFW, C++</div>
+							</a>
+							<div class="card-footer">
+								<a href="/blog/voxel-engine" class="pixel-text">[ VIEW_BLOG ]</a>
+								<a href="https://github.com/OwlWorksInnovations/voxel-engine" target="_blank" class="pixel-text">[ VIEW_SOURCE ]</a>
+							</div>
+						</div>
+					</div>
+				</RetroPanel>
+			</section>
+
+			<section id="contact">
+				<RetroPanel title="NETWORK_COMMS" color="blue">
+					<h2>COMMS: CONTACT</h2>
+					<p>FEEL FREE TO REACH OUT FOR COLLABORATIONS OR INQUIRIES.</p>
+					<div style="background: var(--ps1-black); padding: 1.5rem; border: 4px solid var(--ps1-grey); box-shadow: 4px 4px 0px rgba(0,0,0,0.5);">
+						<div class="stat-line"><span>EMAIL:</span> <span><a href="mailto:juanpistoris01@gmail.com">JUANPISTORIS01@GMAIL.COM</a></span></div>
+						<div class="stat-line"><span>GITHUB:</span> <span><a href="https://github.com/OwlWorksInnovations">OWLWORKSINNOVATIONS</a></span></div>
+					</div>
+				</RetroPanel>
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>

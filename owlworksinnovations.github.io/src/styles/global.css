@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap');
+
+:root {
+	--ps1-purple: #2B2D42;
+	--ps1-grey: #AAAAAA;
+	--ps1-black: #111111;
+	--ps1-white: #EEEEEE;
+	--ps1-red: #df0024;
+	--ps1-yellow: #f3c300;
+	--ps1-teal: #00ab9f;
+	--ps1-blue: #2e6db4;
+
+	--bg-primary: var(--ps1-purple);
+	--bg-secondary: #3D3F5A;
+	--text-primary: var(--ps1-white);
+	--text-secondary: var(--ps1-grey);
+	--accent: var(--ps1-teal);
+	--border: #555555;
+
+	--panel-shadow: 4px 4px 0px rgba(0, 0, 0, 0.8);
+	--panel-bevel: -2px -2px 0px rgba(255, 255, 255, 0.2) inset;
+}
+
+* {
+	box-sizing: border-box;
+	image-rendering: pixelated;
+}
+
+body {
+	font-family: 'VT323', monospace;
+	background-color: var(--bg-primary);
+	color: var(--text-primary);
+	margin: 0;
+	padding: 0;
+	line-height: 1.4;
+	font-size: 1.5rem;
+	overflow-x: hidden;
+}
+
+/* CRT Scanline Effect */
+body::before {
+	content: " ";
+	display: block;
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+	z-index: 200;
+	background-size: 100% 2px, 3px 100%;
+	pointer-events: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: 'Press Start 2P', cursive;
+	color: var(--ps1-yellow);
+	line-height: 1.4;
+	text-transform: uppercase;
+	text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+	font-size: 2rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+}
+
+h3 {
+	font-size: 1.2rem;
+}
+
+main {
+	width: 1200px;
+	max-width: calc(100% - 2em);
+	margin: auto;
+	padding: 4rem 1rem;
+	position: relative;
+	z-index: 10;
+}
+
+@media (max-width: 720px) {
+	main {
+		padding: 2rem 0.5rem;
+	}
+
+	section {
+		margin-bottom: 3rem;
+	}
+
+	h1 {
+		font-size: 1.4rem;
+	}
+
+	h2 {
+		font-size: 1.1rem;
+	}
+
+	body {
+		font-size: 1.2rem;
+	}
+}
+
+a {
+	color: var(--ps1-teal);
+	text-decoration: none;
+	transition: all 0.1s ease;
+}
+
+a:hover {
+	color: var(--ps1-yellow);
+	text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}
+
+ul {
+	list-style: none;
+	padding: 0;
+}
+
+hr {
+	border: none;
+	border-top: 4px solid var(--border);
+	margin: 4rem 0;
+	box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.5);
+}
+
+section {
+	margin-bottom: 6rem;
+}
+
+/* Retro Scrollbar */
+::-webkit-scrollbar {
+	width: 12px;
+}
+
+::-webkit-scrollbar-track {
+	background: var(--ps1-black);
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--ps1-grey);
+	border: 3px solid var(--ps1-black);
+}
